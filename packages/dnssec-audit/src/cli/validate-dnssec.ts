@@ -3,11 +3,11 @@
 //   node --experimental-strip-types validate-dnssec.ts --domain <d> [--type A] [--at <ISO>] [--in <path>]
 import { parseArgs } from "node:util";
 import { readFile } from "node:fs/promises";
-import { JSONLResolver, type CapturedEntry } from "./src/resolver.ts";
-import { walk } from "./src/walker.ts";
-import { typeFromName, canonicalName } from "./src/wire.ts";
-import { ROOT_TRUST_ANCHORS } from "./src/trust-anchor.ts";
-import { bytesToHex } from "./src/util.ts";
+import { JSONLResolver, type CapturedEntry } from "../resolver.ts";
+import { walk } from "../walker.ts";
+import { typeFromName, canonicalName } from "../wire.ts";
+import { ROOT_TRUST_ANCHORS } from "../trust-anchor.ts";
+import { bytesToHex } from "../util.ts";
 
 async function main() {
   const { values } = parseArgs({

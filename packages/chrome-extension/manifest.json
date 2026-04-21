@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Namefi DNSSEC chain checker",
+  "short_name": "DNSSEC Check",
+  "description": "Verify a domain's DNSSEC chain of trust client-side via DNS-over-HTTPS.",
+  "version": "2.1.0",
+  "action": {
+    "default_title": "DNSSEC chain-of-trust checker",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": ["activeTab"],
+  "host_permissions": [
+    "https://cloudflare-dns.com/*",
+    "https://dns.google/*",
+    "https://dns.quad9.net/*"
+  ]
+}

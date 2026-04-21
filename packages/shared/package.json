@@ -1,0 +1,27 @@
+{
+  "name": "@namefi/dnssec-ui-shared",
+  "version": "2.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared UI logic (Preact components, DoH check wrapper, glass-style CSS tokens) used by the webapp and Chrome extension.",
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./check": "./src/check.ts",
+    "./components": "./src/components.tsx",
+    "./styles": "./src/styles.ts",
+    "./styles.css": "./src/styles.css"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@namefi/dnssec-audit": "2.1.0",
+    "preact": "10.25.4"
+  },
+  "devDependencies": {
+    "typescript": "5.7.3"
+  }
+}
