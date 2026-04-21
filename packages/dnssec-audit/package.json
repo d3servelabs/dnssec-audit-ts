@@ -1,16 +1,20 @@
 {
   "name": "@namefi/dnssec-audit",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Pure-TS DNSSEC chain-of-trust exporter and offline validator (NSEC + NSEC3). Works in Node and the browser.",
   "license": "MIT",
   "type": "module",
   "author": "D3Serve Labs Inc. dba Namefi (https://namefi.io)",
-  "homepage": "https://github.com/d3servelabs/dnssec-audit-ts",
+  "homepage": "https://github.com/d3servelabs/dnssec-audit-ts#readme",
+  "bugs": {
+    "url": "https://github.com/d3servelabs/dnssec-audit-ts/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/d3servelabs/dnssec-audit-ts.git",
     "directory": "packages/dnssec-audit"
   },
+  "sideEffects": false,
   "keywords": [
     "dnssec",
     "dns",
@@ -29,40 +33,50 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./walker": {
       "types": "./dist/walker.d.ts",
-      "import": "./dist/walker.js"
+      "import": "./dist/walker.js",
+      "default": "./dist/walker.js"
     },
     "./resolver": {
       "types": "./dist/resolver.d.ts",
-      "import": "./dist/resolver.js"
+      "import": "./dist/resolver.js",
+      "default": "./dist/resolver.js"
     },
     "./wire": {
       "types": "./dist/wire.d.ts",
-      "import": "./dist/wire.js"
+      "import": "./dist/wire.js",
+      "default": "./dist/wire.js"
     },
     "./nsec": {
       "types": "./dist/nsec.d.ts",
-      "import": "./dist/nsec.js"
+      "import": "./dist/nsec.js",
+      "default": "./dist/nsec.js"
     },
     "./trust-anchor": {
       "types": "./dist/trust-anchor.d.ts",
-      "import": "./dist/trust-anchor.js"
+      "import": "./dist/trust-anchor.js",
+      "default": "./dist/trust-anchor.js"
     },
     "./crypto": {
       "types": "./dist/crypto.d.ts",
-      "import": "./dist/crypto.js"
+      "import": "./dist/crypto.js",
+      "default": "./dist/crypto.js"
     },
     "./util": {
       "types": "./dist/util.d.ts",
-      "import": "./dist/util.js"
+      "import": "./dist/util.js",
+      "default": "./dist/util.js"
     },
     "./canonical": {
       "types": "./dist/canonical.d.ts",
-      "import": "./dist/canonical.js"
-    }
+      "import": "./dist/canonical.js",
+      "default": "./dist/canonical.js"
+    },
+    "./package.json": "./package.json"
   },
   "bin": {
     "dnssec-export": "dist/cli/export-dnssec.js",
@@ -86,7 +100,7 @@
     "typescript": "5.7.3"
   },
   "engines": {
-    "node": ">=22.6.0"
+    "node": ">=20.0.0"
   },
   "publishConfig": {
     "access": "public"

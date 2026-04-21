@@ -101,4 +101,4 @@ DS digest types: SHA-1 (1), SHA-256 (2), SHA-384 (4).
 
 ## License
 
-[MIT](../../LICENSE) © 2026 D3Serve Labs Inc. dba Namefi (https://namefi.io)
+[MIT](https://github.com/d3servelabs/dnssec-audit-ts/blob/main/LICENSE) © 2026 D3Serve Labs Inc. dba Namefi (https://namefi.io)
