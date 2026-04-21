@@ -7,10 +7,15 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
-    "noEmit": true,
+    "rewriteRelativeImportExtensions": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": "src",
     "lib": ["es2023", "dom"],
     "resolveJsonModule": true
   },
-  "include": ["packages/*/src/**/*.ts", "packages/*/src/**/*.tsx", "packages/*/*.ts"],
-  "exclude": ["node_modules", "**/dist", "**/.wxt", "**/build"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "test"]
 }

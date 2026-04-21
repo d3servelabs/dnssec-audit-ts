@@ -3,11 +3,11 @@
 //   node --experimental-strip-types export-dnssec.ts --domain <d> [--type A] [--resolver URL] [--out <path>]
 import { parseArgs } from "node:util";
 import { writeFile } from "node:fs/promises";
-import { DoHResolver, RecordingResolver } from "./src/resolver.ts";
-import { walk } from "./src/walker.ts";
-import { typeFromName, canonicalName } from "./src/wire.ts";
-import { ROOT_TRUST_ANCHORS } from "./src/trust-anchor.ts";
-import { bytesToHex } from "./src/util.ts";
+import { DoHResolver, RecordingResolver } from "../resolver.ts";
+import { walk } from "../walker.ts";
+import { typeFromName, canonicalName } from "../wire.ts";
+import { ROOT_TRUST_ANCHORS } from "../trust-anchor.ts";
+import { bytesToHex } from "../util.ts";
 
 async function main() {
   const { values } = parseArgs({

@@ -1,4 +1,10 @@
 node_modules/
 *.jsonl
-!testdata/*.jsonl
+!packages/dnssec-audit/testdata/*.jsonl
 .DS_Store
+dist/
+build/
+.vite/
+.output/
+.wxt/
+*.log

@@ -1,215 +1,145 @@
-# dnssec-audit-ts
+# dnssec-audit monorepo
 
 [![CI](https://github.com/d3servelabs/dnssec-audit-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/d3servelabs/dnssec-audit-ts/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@namefi/dnssec-audit.svg)](https://www.npmjs.com/package/@namefi/dnssec-audit)
 
-A pair of TypeScript scripts that (1) **export** the full DNSSEC chain of trust
-for a domain to a JSONL file, and (2) **validate** it cryptographically offline
-from that JSONL alone — no network, no `dig`, no native dependencies.
+A pure-TypeScript DNSSEC chain-of-trust stack: a library + CLI, a glass-UI
+web app, and a Chrome extension — all sharing the same walker and running
+entirely in the browser via DNS-over-HTTPS.
 
-The same `src/` modules run in Node today and in a browser later (all code uses
-`Uint8Array`, `fetch`, and `crypto.subtle` — no `Buffer`, no Node-only APIs).
+## Packages
 
-## Why
+| Path | Name | Published | Description |
+|---|---|---|---|
+| [`packages/dnssec-audit`](./packages/dnssec-audit) | [`@namefi/dnssec-audit`](https://www.npmjs.com/package/@namefi/dnssec-audit) | public on npm | Pure-TS DNSSEC walker, exporter, offline validator. |
+| [`packages/shared`](./packages/shared) | `@namefi/dnssec-ui-shared` | private | Preact components and CSS shared by the webapp and extension. |
+| [`packages/webapp`](./packages/webapp) | `@namefi/dnssec-webapp` | private — deployed to [dnssec.tools.namefi.io](https://dnssec.tools.namefi.io) | Preact + Vite glass-UI single-page app. |
+| [`packages/chrome-extension`](./packages/chrome-extension) | `@namefi/dnssec-chrome-extension` | private — Chrome Web Store | Manifest V3 popup reusing the shared UI. |
 
-- **Reproducible audits.** Capture the exact signatures a resolver returned at
-  a point in time, then verify them any time afterwards without trusting
-  anything except the IANA root trust anchor.
-- **Portable.** No `dig`, no native crypto libraries. Two CLI files and a small
-  pure-TypeScript core.
-- **Uniform.** One walker handles positive answers, NSEC / NSEC3 NODATA,
-  NSEC / NSEC3 NXDOMAIN, and NSEC3-opt-out insecure delegation.
+All packages are currently pinned at **v2.1.0**.
 
-## Requirements
+## Quick start
 
-- Node 22.6+ (for `node --experimental-strip-types`, running `.ts` directly)
-- No runtime dependencies; TypeScript + `@types/node` as dev-only
-
-```
+```bash
 npm install
-```
 
-## Usage
-
-### Export
-
-```
-node --experimental-strip-types export-dnssec.ts \
-     --domain prettysafe.xyz \
-     [--type A] \
-     [--resolver https://cloudflare-dns.com/dns-query] \
-     [--out prettysafe.xyz-dnssec.jsonl]
-```
-
-Writes one JSON object per line:
-- 1 `header` (tool version, timestamp, walker verdict/steps)
-- N `trust-anchor` lines (IANA root DS records, informational)
-- M `response` lines (one per DoH query, with base64 wire-format response)
-
-### Validate
-
-```
-node --experimental-strip-types validate-dnssec.ts \
-     --domain prettysafe.xyz \
-     [--type A] \
-     [--at 2026-04-21T00:00:00Z] \
-     [--in prettysafe.xyz-dnssec.jsonl] \
-     [--verbose]
-```
-
-Exits `0` on `secure-positive | secure-nodata | secure-nxdomain`, non-zero
-otherwise (including `insecure` and `bogus`).
-
-### npm scripts
-
-```
-npm run export -- --domain prettysafe.xyz
-npm run validate -- --domain prettysafe.xyz --verbose
-npm run typecheck
+# run the library's tests
 npm test
+
+# start the webapp locally
+npm run dev:webapp        # http://localhost:5173
+
+# watch-build the Chrome extension
+npm run dev:chrome-extension
+# then load packages/chrome-extension/dist/ as an unpacked extension
+
+# build every publishable / deployable artifact
+npm run build
 ```
 
-### Tests
+## The library — `@namefi/dnssec-audit`
 
-Captured fixtures live in [`testdata/`](./testdata) and are re-validated in CI
-via `node --test`. Each fixture is pinned to the timestamp in its `header.created`
-field so RRSIG inception/expiration checks stay deterministic over time.
+See [`packages/dnssec-audit/README.md`](./packages/dnssec-audit/README.md) for
+the full API. Quick look:
 
-## Verdicts
+```ts
+import { DoHResolver, walk } from "@namefi/dnssec-audit";
 
-| Verdict           | Meaning                                                          |
-|-------------------|------------------------------------------------------------------|
-| `secure-positive` | Full chain root → ... → qname; answer RRset signature verified.  |
-| `secure-nodata`   | Chain verified; NSEC/NSEC3 proves the type does not exist.       |
-| `secure-nxdomain` | Chain verified; NSEC/NSEC3 proves the name does not exist.       |
-| `insecure`        | Proof of no DS at a delegation point (incl. NSEC3 opt-out).      |
-| `bogus`           | Required signature, digest, or denial proof failed verification. |
-
-## Design
-
-```
-          dig  ─────────────────────── replaced by pure-TS + fetch
-          │
-          ▼
-┌────────────────────┐    ┌────────────────────┐
-│ export-dnssec.ts   │    │ validate-dnssec.ts │
-│  (Node, online)    │    │  (Node/browser,    │
-│                    │    │   offline)         │
-└─────────┬──────────┘    └─────────┬──────────┘
-          │                         │
-          │ RecordingResolver       │ JSONLResolver
-          │ wraps DoHResolver       │ reads JSONL
-          └──────────┬──────────────┘
-                     ▼
-               src/walker.ts
-                     │
-      ┌──────────────┼───────────────┐
-      ▼              ▼               ▼
-  src/wire.ts   src/canonical.ts  src/crypto.ts
-  (DNS codec)   (RFC 4034 canon)  (Web Crypto)
-                     │
-                     ▼
-                src/nsec.ts
-           (NSEC & NSEC3 denial)
+const resolver = new DoHResolver("https://cloudflare-dns.com/dns-query");
+const res = await walk("cloudflare.com.", 1, resolver);
+console.log(res.verdict); // "secure-positive"
 ```
 
-The walker is identical across both CLIs — only the `Resolver` differs. That
-guarantees the validator sees the same DNS responses the exporter saw, byte for
-byte (responses are stored as base64-encoded wire format).
+CLIs:
 
-### Chain walk
-
-1. Query `. DNSKEY`. Match one DNSKEY's digest against an IANA root DS
-   (trust anchor).  Verify the root DNSKEY RRset signature with that KSK.
-2. For each zone between the root and the queried name:
-   - Query `zone DS` in the parent.
-   - If DS present: verify its RRSIG with the parent's keys, match a child
-     DNSKEY's digest to a DS, query the child DNSKEY RRset and verify.
-   - If DS absent with valid NSEC/NSEC3 NODATA: mark insecure below here.
-3. Query `qname qtype`.
-   - Positive: verify the answer RRset's RRSIG with the signing zone's keys.
-   - Denial: dispatch to NSEC or NSEC3 verifier (closest encloser, covering
-     next-closer, wildcard).
-
-## Supported algorithms
-
-| DNSKEY algorithm        | Num | Status          |
-|-------------------------|-----|-----------------|
-| RSA/SHA-256             | 8   | supported       |
-| RSA/SHA-512             | 10  | supported       |
-| ECDSA Curve P-256       | 13  | supported       |
-| ECDSA Curve P-384       | 14  | supported       |
-| Ed25519                 | 15  | supported       |
-| RSA/SHA-1, RSA/SHA-1-NSEC3, DSA | 5 / 7 / 3 | not implemented (deprecated) |
-
-DS digest types: SHA-1 (1), SHA-256 (2), SHA-384 (4).
-
-## Browser reuse
-
-`src/` uses only `Uint8Array`, `DataView`, `TextEncoder`, `fetch`, and
-`crypto.subtle`. Only the two CLI entry files (`export-dnssec.ts`,
-`validate-dnssec.ts`) import `node:fs` / `node:util`. Wrap the walker in a
-web UI by:
-
-1. `import { walk } from "./src/walker.ts"` (bundle with esbuild/vite).
-2. Instantiate `DoHResolver` with any public DoH endpoint.
-3. Collect responses as `{ wire_b64, qname, qtype, endpoint, timestamp }`.
-4. Feed them back into `JSONLResolver` for offline re-verification.
-
-No `Buffer` polyfill, no Node shims.
-
-## JSONL schema
-
-```jsonc
-// Header (one per file)
-{
-  "kind": "header",
-  "version": 1,
-  "tool": "dnssec-audit-ts",
-  "created": "2026-04-21T16:00:00Z",
-  "domain": "prettysafe.xyz.",
-  "qtype": 1,
-  "resolver": "https://cloudflare-dns.com/dns-query",
-  "walker_verdict": "secure-nxdomain",
-  "walker_detail": "...",
-  "walker_error": null,
-  "walker_steps": [ /* ... */ ]
-}
-
-// Trust-anchor line(s) — informational snapshot; validator uses its own
-// hardcoded IANA copy as the source of truth.
-{
-  "kind": "trust-anchor",
-  "keyTag": 20326,
-  "algorithm": 8,
-  "digestType": 2,
-  "digest_hex": "e06d44b8...",
-  "notes": "IANA root KSK-2017"
-}
-
-// Captured DoH response (one per walker query)
-{
-  "kind": "response",
-  "qname": "xyz.",
-  "qtype": 43,
-  "endpoint": "https://cloudflare-dns.com/dns-query",
-  "timestamp": "2026-04-21T16:00:01.123Z",
-  "wire_b64": "AAA..."
-}
+```bash
+npx @namefi/dnssec-audit dnssec-export --domain cloudflare.com
+npx @namefi/dnssec-audit dnssec-validate --domain cloudflare.com --verbose
 ```
 
-The validator decodes each `wire_b64` back to a `DNSMessage` and re-runs the
-walker against that cache — signatures are verified against the original bytes,
-so verification is byte-exact.
+Or via workspace scripts during development:
 
-## Known limitations
+```bash
+npm run export -- --domain cloudflare.com
+npm run validate -- --domain cloudflare.com --verbose
+```
 
-- CNAME/DNAME chains are not followed. Point the exporter at the canonical
-  target if you need to validate further.
-- Wildcard-signed positive answers honour the RRSIG label count but aren't
-  exercised in the test fixtures.
-- No full NSEC3 walker of the whole zone — only the specific denial proof the
-  resolver returned.
-- Deprecated algorithms (RSA/SHA-1, DSA) are not implemented.
+### Publishing
+
+```bash
+npm run build -w packages/dnssec-audit
+npm publish -w packages/dnssec-audit --access public
+```
+
+`publishConfig.access` is already `public`. `prepublishOnly` runs the build.
+
+## The webapp
+
+Minimalist, high-end glassmorphism UI: frosted-glass card over a deep bokeh
+background, 1px white border highlight, soft diffused shadows. Accepts one or
+more domains (space / comma / newline separated) and runs the walker entirely
+client-side against a chosen DoH endpoint — your domain list never leaves
+the browser.
+
+Deploy target: **https://dnssec.tools.namefi.io** (static host, `dist/`
+contents served at the root).
+
+```bash
+npm run dev:webapp         # live dev server
+npm run build -w packages/webapp
+# packages/webapp/dist/ is ready to upload
+```
+
+URL parameters:
+- `?d=example.com,foo.com` — pre-fill domains
+- `?t=AAAA` — default query type
+
+## The Chrome extension
+
+Manifest V3, popup-only. Opens with the current tab's hostname pre-filled
+and offers a one-click deep link to the full webapp.
+
+```bash
+npm run build -w packages/chrome-extension
+# then in chrome://extensions enable Developer Mode and
+# "Load unpacked" → packages/chrome-extension/dist
+```
+
+The extension declares `host_permissions` only for the three public DoH
+endpoints it uses (Cloudflare / Google / Quad9).
+
+## Architecture
+
+```
+          ┌─────────────────────────────────────────────────┐
+          │ @namefi/dnssec-audit (pure-TS, zero-dep)        │
+          │  wire · canonical · crypto · nsec · walker      │
+          │  resolver (DoH / Recording / JSONL)             │
+          └──────────────┬──────────────────────────────────┘
+                         │
+          ┌──────────────┴───────────────┐
+          │ @namefi/dnssec-ui-shared     │
+          │  checkDomain()               │
+          │  <DnssecChecker />  <BrandHeader />
+          │  styles.css (glass tokens)   │
+          └──────┬─────────────────┬─────┘
+                 │                 │
+   ┌─────────────┴─────┐   ┌───────┴──────────────┐
+   │ webapp            │   │ chrome-extension     │
+   │ Preact + Vite     │   │ Preact + MV3 popup   │
+   │ dnssec.tools…     │   │ Chrome Web Store     │
+   └───────────────────┘   └──────────────────────┘
+```
+
+The walker is the same code path the npm package exposes — the UI packages
+are a thin Preact shell around `DoHResolver` + `walk()`.
+
+## Browser compatibility
+
+The core only uses `Uint8Array`, `DataView`, `TextEncoder`, `fetch`, and
+`crypto.subtle`. No `Buffer`, no Node shims. Requires a browser that
+supports the Ed25519 algorithm in WebCrypto (Chrome 133+, Safari 17+,
+Firefox 130+); other DNSSEC algorithms have broader support.
 
 ## Also See
 

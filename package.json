@@ -1,19 +1,23 @@
 {
-  "name": "dnssec-audit-ts",
-  "version": "0.1.0",
+  "name": "@namefi/dnssec-monorepo",
+  "version": "2.1.0",
   "private": true,
-  "type": "module",
-  "description": "Pure-TS DNSSEC chain-of-trust exporter and offline validator (NSEC + NSEC3)",
+  "description": "Monorepo for @namefi/dnssec-audit, the DNSSEC chain-of-trust webapp, and the Chrome extension",
   "license": "MIT",
+  "workspaces": [
+    "packages/dnssec-audit",
+    "packages/shared",
+    "packages/webapp",
+    "packages/chrome-extension"
+  ],
   "scripts": {
-    "export": "node --experimental-strip-types --no-warnings=ExperimentalWarning export-dnssec.ts",
-    "validate": "node --experimental-strip-types --no-warnings=ExperimentalWarning validate-dnssec.ts",
-    "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --no-warnings=ExperimentalWarning --test test/*.test.ts"
-  },
-  "devDependencies": {
-    "@types/node": "22.10.5",
-    "typescript": "5.7.3"
+    "build": "npm run build -w packages/dnssec-audit && npm run build -w packages/shared && npm run build -w packages/webapp && npm run build -w packages/chrome-extension",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test -w packages/dnssec-audit",
+    "dev:webapp": "npm run dev -w packages/webapp",
+    "dev:chrome-extension": "npm run dev -w packages/chrome-extension",
+    "export": "npm run export -w packages/dnssec-audit --",
+    "validate": "npm run validate -w packages/dnssec-audit --"
   },
   "engines": {
     "node": ">=22.6.0"
