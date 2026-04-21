@@ -65,8 +65,8 @@
     }
   },
   "bin": {
-    "dnssec-export": "./dist/cli/export-dnssec.js",
-    "dnssec-validate": "./dist/cli/validate-dnssec.js"
+    "dnssec-export": "dist/cli/export-dnssec.js",
+    "dnssec-validate": "dist/cli/validate-dnssec.js"
   },
   "files": [
     "dist",
