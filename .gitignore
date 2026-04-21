@@ -1,3 +1,4 @@
 node_modules/
 *.jsonl
+!testdata/*.jsonl
 .DS_Store

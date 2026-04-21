@@ -8,7 +8,8 @@
   "scripts": {
     "export": "node --experimental-strip-types --no-warnings=ExperimentalWarning export-dnssec.ts",
     "validate": "node --experimental-strip-types --no-warnings=ExperimentalWarning validate-dnssec.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --no-warnings=ExperimentalWarning --test test/*.test.ts"
   },
   "devDependencies": {
     "@types/node": "22.10.5",
