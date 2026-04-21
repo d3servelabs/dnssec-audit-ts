@@ -202,6 +202,10 @@ so verification is byte-exact.
   resolver returned.
 - Deprecated algorithms (RSA/SHA-1, DSA) are not implemented.
 
+## Also See
+
+- [d3servelabs/dnssec-audit-py](https://github.com/d3servelabs/dnssec-audit-py) — Python implementation.
+
 ## License
 
 [MIT](LICENSE) © 2026 D3Serve Labs Inc. dba Namefi (https://namefi.io)
