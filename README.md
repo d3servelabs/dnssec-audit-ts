@@ -1,5 +1,7 @@
 # dnssec-audit-ts
 
+[![CI](https://github.com/d3servelabs/dnssec-audit-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/d3servelabs/dnssec-audit-ts/actions/workflows/ci.yml)
+
 A pair of TypeScript scripts that (1) **export** the full DNSSEC chain of trust
 for a domain to a JSONL file, and (2) **validate** it cryptographically offline
 from that JSONL alone — no network, no `dig`, no native dependencies.
@@ -63,7 +65,14 @@ otherwise (including `insecure` and `bogus`).
 npm run export -- --domain prettysafe.xyz
 npm run validate -- --domain prettysafe.xyz --verbose
 npm run typecheck
+npm test
 ```
+
+### Tests
+
+Captured fixtures live in [`testdata/`](./testdata) and are re-validated in CI
+via `node --test`. Each fixture is pinned to the timestamp in its `header.created`
+field so RRSIG inception/expiration checks stay deterministic over time.
 
 ## Verdicts
 
