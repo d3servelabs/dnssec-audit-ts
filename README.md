@@ -204,4 +204,4 @@ so verification is byte-exact.
 
 ## License
 
-[MIT](LICENSE) © 2026 xinbenlv
+[MIT](LICENSE) © 2026 D3Serve Labs Inc. dba Namefi (https://namefi.io)
