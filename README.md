@@ -204,4 +204,4 @@ so verification is byte-exact.
 
 ## License
 
-MIT (or whatever you choose — no runtime deps imply no transitive licenses).
+[MIT](LICENSE) © 2026 xinbenlv

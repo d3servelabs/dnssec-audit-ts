@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "description": "Pure-TS DNSSEC chain-of-trust exporter and offline validator (NSEC + NSEC3)",
+  "license": "MIT",
   "scripts": {
     "export": "node --experimental-strip-types --no-warnings=ExperimentalWarning export-dnssec.ts",
     "validate": "node --experimental-strip-types --no-warnings=ExperimentalWarning validate-dnssec.ts",
