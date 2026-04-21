@@ -1,0 +1,19 @@
+{
+  "name": "dnssec-audit-ts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure-TS DNSSEC chain-of-trust exporter and offline validator (NSEC + NSEC3)",
+  "scripts": {
+    "export": "node --experimental-strip-types --no-warnings=ExperimentalWarning export-dnssec.ts",
+    "validate": "node --experimental-strip-types --no-warnings=ExperimentalWarning validate-dnssec.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.5",
+    "typescript": "5.7.3"
+  },
+  "engines": {
+    "node": ">=22.6.0"
+  }
+}
