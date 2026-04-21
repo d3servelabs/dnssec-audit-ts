@@ -5,7 +5,12 @@
     "jsxImportSource": "preact",
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "types": []
+    "types": [],
+    "baseUrl": ".",
+    "paths": {
+      "@namefi/dnssec-audit": ["../dnssec-audit/src/index.ts"],
+      "@namefi/dnssec-audit/*": ["../dnssec-audit/src/*.ts"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

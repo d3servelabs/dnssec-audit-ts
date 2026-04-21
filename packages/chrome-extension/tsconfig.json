@@ -5,7 +5,14 @@
     "jsxImportSource": "preact",
     "allowImportingTsExtensions": true,
     "noEmit": true,
-    "types": ["chrome", "vite/client"]
+    "types": ["chrome", "vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@namefi/dnssec-audit": ["../dnssec-audit/src/index.ts"],
+      "@namefi/dnssec-audit/*": ["../dnssec-audit/src/*.ts"],
+      "@namefi/dnssec-ui-shared": ["../shared/src/index.ts"],
+      "@namefi/dnssec-ui-shared/*": ["../shared/src/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"]
 }

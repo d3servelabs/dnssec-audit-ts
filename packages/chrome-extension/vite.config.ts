@@ -1,7 +1,11 @@
 import { defineConfig } from "vite";
 import preact from "@preact/preset-vite";
 import { resolve } from "node:path";
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync } from "node:fs";
+import { fileURLToPath, URL } from "node:url";
+
+const dnssecAuditSrc = fileURLToPath(new URL("../dnssec-audit/src", import.meta.url));
+const sharedSrc = fileURLToPath(new URL("../shared/src", import.meta.url));
 
 // Copy the extension static assets (manifest, icons) into dist/ on every build.
 function copyExtensionAssets() {
@@ -29,6 +33,17 @@ function copyExtensionAssets() {
 export default defineConfig({
   plugins: [preact(), copyExtensionAssets()],
   base: "./",
+  resolve: {
+    alias: [
+      { find: /^@namefi\/dnssec-audit$/, replacement: `${dnssecAuditSrc}/index.ts` },
+      { find: /^@namefi\/dnssec-audit\/(.*)$/, replacement: `${dnssecAuditSrc}/$1.ts` },
+      { find: /^@namefi\/dnssec-ui-shared\/styles\.css$/, replacement: `${sharedSrc}/styles.css` },
+      { find: /^@namefi\/dnssec-ui-shared\/components$/, replacement: `${sharedSrc}/components.tsx` },
+      { find: /^@namefi\/dnssec-ui-shared\/check$/, replacement: `${sharedSrc}/check.ts` },
+      { find: /^@namefi\/dnssec-ui-shared\/styles$/, replacement: `${sharedSrc}/styles.ts` },
+      { find: /^@namefi\/dnssec-ui-shared$/, replacement: `${sharedSrc}/index.ts` },
+    ],
+  },
   build: {
     target: "es2022",
     outDir: "dist",
